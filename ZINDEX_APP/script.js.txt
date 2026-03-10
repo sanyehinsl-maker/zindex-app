@@ -1,0 +1,106 @@
+// 1. CONFIGURACIÓN DE SEGURIDAD
+// Esta es la clave que elegiste: 80875420
+const CLAVE_ACCESO = "80875420";
+let isAdmin = false;
+
+// 2. PLANTILLA MAESTRA (Lo que el administrador puede modificar)
+let plantillaBase = `<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: sans-serif; background-color: #020617; color: white; padding: 40px; text-align: center; }
+        .container { border: 1px solid #64ffda; padding: 20px; border-radius: 15px; }
+        h1 { color: #64ffda; }
+        p { font-size: 18px; color: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Propuesta para {{EMPRESA}}</h1>
+        <p>Hola {{CLIENTE}}, hemos analizado su potencial digital.</p>
+        <p>Atentamente, el equipo de Digital Resonance.</p>
+    </div>
+</body>
+</html>`;
+
+// 3. FUNCIÓN DE OPERATIVIDAD (Cambiar entre Trabajador y Administrador)
+function verificarRol() {
+    const selector = document.getElementById('role-selector');
+    const valorSeleccionado = selector.value;
+
+    if (valorSeleccionado === "admin") {
+        const intentoClave = prompt("SISTEMA BLOQUEADO. Ingrese la clave de administrador:");
+        
+        if (intentoClave === CLAVE_ACCESO) {
+            isAdmin = true;
+            document.body.classList.add('modo-admin');
+            alert("Acceso concedido. Modo Administrador activado.");
+        } else {
+            alert("CLAVE INCORRECTA. Acceso denegado.");
+            selector.value = "user"; // Regresa a trabajador si falla
+            isAdmin = false;
+        }
+    } else {
+        isAdmin = false;
+        document.body.classList.remove('modo-admin');
+        closeEditor();
+    }
+}
+
+// 4. FUNCIÓN GENERADORA (Lo que usa el Trabajador)
+function generar() {
+    const campoEmpresa = document.getElementById('empresa').value || "[Empresa]";
+    const campoCliente = document.getElementById('cliente').value || "[Cliente]";
+    
+    // Reemplazamos las etiquetas por el texto real
+    let resultadoFinal = plantillaBase
+        .replace('{{EMPRESA}}', campoEmpresa)
+        .replace('{{CLIENTE}}', campoCliente);
+
+    // Lo mostramos en la pantalla (iframe)
+    document.getElementById('pantalla').srcdoc = resultadoFinal;
+    
+    // También lo ponemos en el editor de código por si el admin quiere verlo
+    document.getElementById('master-editor').value = plantillaBase;
+}
+
+// 5. FUNCIÓN DE EDICIÓN (Solo para Administrador)
+function toggleEdicion() {
+    if (!isAdmin) return;
+
+    const editor = document.getElementById('master-editor');
+    const visualizacion = document.getElementById('pantalla');
+
+    if (editor.style.display === 'none' || editor.style.display === '') {
+        // Abrir editor
+        editor.style.display = 'block';
+        visualizacion.style.display = 'none';
+    } else {
+        // Guardar y cerrar
+        plantillaBase = editor.value;
+        editor.style.display = 'none';
+        visualizacion.style.display = 'block';
+        generar(); // Actualiza la vista con los nuevos cambios
+        alert("Plantilla actualizada con éxito.");
+    }
+}
+
+// 6. FUNCIÓN PARA COPIAR EL RESULTADO
+function copiarHTML() {
+    const contenido = document.getElementById('pantalla').srcdoc;
+    navigator.clipboard.writeText(contenido).then(() => {
+        alert("¡Código HTML copiado al portapapeles!");
+    });
+}
+
+// 7. MOTOR DE LA APP (Service Worker para que sea instalable)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('App lista para instalar'))
+            .catch(err => console.log('Error al configurar app', err));
+    });
+}
+
+// Ejecutar al cargar para que no esté vacío
+window.onload = generar;

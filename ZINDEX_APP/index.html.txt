@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Z-INDEX OS</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#020617">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <style>
+        :root { --bg: #020617; --card: #0f172a; --accent: #64ffda; --border: #1e293b; --text: #f8fafc; --warning: #f59e0b; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* Encabezado y Selector de Rol */
+        .header { background: var(--card); padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { margin: 0; font-size: 1.2rem; color: var(--accent); letter-spacing: 2px; }
+        
+        /* Contenedor de Inputs */
+        .controls { padding: 15px; background: var(--card); border-bottom: 1px solid var(--border); }
+        .input-group { margin-bottom: 10px; }
+        label { display: block; font-size: 10px; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px; font-weight: 700; }
+        input, select { width: 100%; background: #020617; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 8px; font-size: 14px; }
+        
+        /* Zona de Visualización */
+        .viewer { flex: 1; display: flex; flex-direction: column; background: #000; position: relative; }
+        iframe { flex: 1; border: none; background: white; width: 100%; }
+        textarea { display: none; flex: 1; background: #010409; color: #7dd3fc; font-family: monospace; padding: 15px; border: none; resize: none; font-size: 13px; }
+
+        /* Botones */
+        .actions { padding: 15px; background: var(--card); display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { padding: 12px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 11px; }
+        .btn-primary { background: var(--accent); color: #020617; }
+        .btn-outline { background: #1e293b; color: white; }
+        
+        /* Estilos especiales para el Administrador */
+        .admin-btn { display: none; background: var(--warning); color: black; grid-column: span 2; }
+        .modo-admin .admin-btn { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Z-INDEX OS</h1>
+        <select id="role-selector" onchange="verificarRol()">
+            <option value="user">TRABAJADOR</option>
+            <option value="admin">ADMIN</option>
+        </select>
+    </div>
+
+    <div class="controls">
+        <div class="input-group">
+            <label>Empresa Objetivo</label>
+            <input type="text" id="empresa" placeholder="Ej: Nike" oninput="generar()">
+        </div>
+        <div class="input-group">
+            <label>Nombre del Cliente</label>
+            <input type="text" id="cliente" placeholder="Ej: Juan Pérez" oninput="generar()">
+        </div>
+    </div>
+
+    <div class="viewer">
+        <iframe id="pantalla"></iframe>
+        <textarea id="master-editor"></textarea>
+    </div>
+
+    <div class="actions">
+        <button class="btn btn-admin admin-btn" onclick="toggleEdicion()">⚙️ EDITAR PLANTILLA MAESTRA</button>
+        <button class="btn btn-outline" onclick="location.reload()">🔄 LIMPIAR</button>
+        <button class="btn btn-primary" onclick="copiarHTML()">📋 COPIAR RESULTADO</button>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
